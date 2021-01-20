@@ -106,7 +106,6 @@ const handleChunks = (chunks) => {
             console.log(_);
           }
 
-          console.log(resultCount);
           resultCount++;
           parts[index + 2] = {
             ...chunkPath,
@@ -161,7 +160,6 @@ const handleEvents = (chunks, partsOffset) => {
             console.log(_);
           }
 
-          console.log(resultCount);
           resultCount++;
           parts[index + partsOffset] = {
             ...chunkPath,

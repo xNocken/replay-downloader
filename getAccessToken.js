@@ -12,13 +12,12 @@ const body = {
   token_type: 'eg1',
 };
 
-// TODO: cache key
 const getAccessToken = (callback) => {
   if (fs.existsSync('cache.json')) {
     const cache = JSON.parse(fs.readFileSync('cache.json'));
 
-    if (new Date(cache.expiresAt).getTime() > Date.now()) {
-      callback(`bearer ${ cache.accessToken }`);
+    if (new Date(cache.expires_at).getTime() > Date.now()) {
+      callback(`${ cache.token_type } ${ cache.access_token }`, cache);
       return;
     }
   }
@@ -28,14 +27,15 @@ const getAccessToken = (callback) => {
     headers,
     form: body,
   }, (_, __, body) => {
-    const { access_token: accessToken, expires_at: expiresAt } = JSON.parse(body);
+    const tokenData = JSON.parse(body);
 
-    fs.writeFileSync('cache.json', JSON.stringify({
-      accessToken,
-      expiresAt,
-    }))
+    if (body.error) {
+      throw Error(body.error);
+    }
 
-    callback(`bearer ${ accessToken }`);
+    fs.writeFileSync('cache.json', JSON.stringify(tokenData))
+
+    callback(`${ tokenData.token_type } ${ tokenData.access_token }`, tokenData);
   })
 };
 

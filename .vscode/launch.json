@@ -14,7 +14,7 @@
             "args": [
                 "1b0adef100474846ad2374beff8c124c"
             ],
-            "program": "${workspaceFolder}\\index.js"
+            "program": "${workspaceFolder}/test.js"
         }
     ]
 }

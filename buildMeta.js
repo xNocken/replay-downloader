@@ -1,4 +1,4 @@
-const Replay = require('./replay');
+const Replay = require('./Replay');
 const Size = require('./Size');
 
 const buildMeta = (header) => {

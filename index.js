@@ -1,128 +1,14 @@
-const request = require('request');
-const buildMeta = require('./buildMeta');
-const getAccessToken = require("./getAccessToken");
-const Size = require('./Size');
-const Replay = require('./Replay');
+const buildMeta = require('./src/buildMeta');
+const buildReplay = require('./src/buildReplay');
+const downloadFile = require('./src/downloadFile');
+const handleDownload = require('./src/handleDownload');
 
 const metadataPath = 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplaysmetadata/public%2F';
-const baseFolderUrl = 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplays/public%2F';
 
-const buildReplay = (parts, callback) => {
-  const size = new Size();
-
-  parts.forEach((chunk) => {
-    size.size += chunk.size;
-  });
-
-  let newBuffer = new Replay(size.getBuffer());
-  parts.forEach((part, index) => {
-    switch (part.type) {
-      case 'meta':
-        newBuffer.writeBytes(part.data);
-        break;
-
-      case 'chunk':
-        newBuffer.writeInt32(part.chunkType);
-        const chunkTypeOffset = newBuffer.offset;
-        newBuffer.skip(4);
-
-        const startOffset = newBuffer.offset;
-
-        switch (part.chunkType) {
-          case 0:
-            newBuffer.writeBytes(part.data);
-            break;
-
-          case 1:
-            newBuffer.writeInt32(part.Time1);
-            newBuffer.writeInt32(part.Time2);
-            newBuffer.writeInt32(part.data.length);
-            newBuffer.writeInt32(part.SizeInBytes);
-            newBuffer.writeBytes(part.data);
-            break;
-
-          case 2:
-          case 3:
-            newBuffer.writeString(part.Id);
-            newBuffer.writeString(part.Group);
-            newBuffer.writeString(part.Metadata || '');
-            newBuffer.writeInt32(part.Time1);
-            newBuffer.writeInt32(part.Time2);
-            newBuffer.writeInt32(part.data.length);
-            newBuffer.writeBytes(part.data);
-        }
-
-        newBuffer.writeInt32(newBuffer.offset - startOffset, chunkTypeOffset);
-    }
-  });
-
-  callback(newBuffer.buffer);
-};
-
-const downloadFile = (link, callback, encoding = 'utf-8') => {
-  getAccessToken((accessToken) => {
-    request(link, {
-      headers: {
-        Authorization: accessToken,
-      }
-    }, (err, res, body) => {
-      if (err || res.statusCode !== 200) {
-        callback(false, err || body);
-
-        return;
-      }
-
-      const { readLink } = Object.values(JSON.parse(body).files)[0];
-
-      request(readLink, {
-        encoding,
-      }, (err2, res2, body2) => {
-        if (err2 || res2.statusCode !== 200) {
-          console.log(readLink);
-          console.log(link);
-          callback(false, err || body2);
-
-          return;
-        }
-
-        callback(body2);
-      });
-    });
-  });
-};
-
-const handleDownload = (chunks, matchId, callback, results = [], updateCallback) => {
-  const nextChunk = chunks.shift();
-
-  if (!nextChunk) {
-    callback(results);
-
-    return;
-  }
-
-  downloadFile(`${ baseFolderUrl }${ matchId }%2F${ nextChunk.Id }.bin`, (data, err) => {
+const downloadReplay = (matchId, callback = (result, err) => { }, config, updateCallback = () => { }) => {
+  downloadFile(metadataPath + matchId + '.json', config.deviceAuth, (data, err) => {
     if (!data) {
       callback(false, err);
-
-      return;
-    }
-
-    results.push({
-      ...nextChunk,
-      size: nextChunk.size + data.length,
-      data: data,
-    });
-
-    updateCallback(nextChunk.chunkType);
-
-    handleDownload(chunks, matchId, callback, results, updateCallback);
-  }, nextChunk.encoding)
-}
-
-const downloadReplay = (matchId, callback, config, updateCallback = () => { }) => {
-  downloadFile(metadataPath + matchId + '.json', (data) => {
-    if (!data) {
-      callback(false, data);
 
       return;
     }
@@ -219,7 +105,7 @@ const downloadReplay = (matchId, callback, config, updateCallback = () => { }) =
     let checkpointDone = 0;
     let headerDone = 0;
 
-    handleDownload(downloadChunks, matchId, (result, err) => {
+    handleDownload(downloadChunks, matchId, config.deviceAuth, (result, err) => {
       if (result) {
         buildReplay(result, callback);
       } else {

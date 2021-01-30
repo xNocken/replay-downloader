@@ -1,4 +1,4 @@
-deviceAuths.json
+deviceAuth*.json
 cache.json
 node_modules
 headertemp

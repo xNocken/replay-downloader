@@ -17,11 +17,23 @@ const downloadReplay = (matchId, callback = (result, err) => { }, config, update
 
     const downloadChunks = [];
     const resultChunks = [];
-    const { DataChunks, Checkpoints, Events } = meta;
+    let { DataChunks, Checkpoints, Events } = meta;
 
     delete meta.DataChunks;
     delete meta.Checkpoints;
     delete meta.Events;
+
+    if (!DataChunks) {
+      DataChunks = [];
+    }
+
+    if (!Checkpoints) {
+      Checkpoints = [];
+    }
+
+    if (!Events) {
+      Events = [];
+    }
 
     updateCallback({
       header: {

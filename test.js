@@ -1,9 +1,10 @@
 const replayDownloader = require('.');
 const deviceAuth = require('./deviceAuths.json');
-const deviceAuth2 = require('./deviceAuth2.json');
+const fs = require('fs');
 
-replayDownloader('538113122c39463ca32930dd6346a896', (replay, err) => {
+replayDownloader.downloadReplay('09525a55bf724b54b6cae5921f80dcba', (replay, err) => {
   if (replay) {
+    fs.writeFileSync('result.replay', replay);
     console.log('one done')
   } else {
     console.log(err);
@@ -22,22 +23,6 @@ replayDownloader('538113122c39463ca32930dd6346a896', (replay, err) => {
   console.log('checkpoints', `${ data.checkpointChunks.current }/${ data.checkpointChunks.max }`);
 });
 
-replayDownloader('538113122c39463ca32930dd6346a897', (replay, err) => {
-  if (replay) {
-    console.log('two done')
-  } else {
-    console.log(err);
-  }
-}, {
-  eventCount: 0,
-  dataCount: 1,
-  checkpointCount: 0,
-  deviceAuth: deviceAuth2,
-}, (data) => {
-  console.log('');
-  console.log('Two');
-  console.log('header', `${ data.header.current }/${ data.header.max }`);
-  console.log('data', `${ data.dataChunks.current }/${ data.dataChunks.max }`);
-  console.log('events', `${ data.eventChunks.current }/${ data.eventChunks.max }`);
-  console.log('checkpoints', `${ data.checkpointChunks.current }/${ data.checkpointChunks.max }`);
-});
+replayDownloader.downloadMetadata('09525a55bf724b54b6cae5921f80dcba', deviceAuth, (a) => {
+  fs.writeFileSync('metadata.json', JSON.stringify(a, null, 2));
+})

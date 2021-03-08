@@ -2,5 +2,5 @@ deviceAuth*.json
 cache.json
 node_modules
 headertemp
-meta.json
+metadata.json
 *.replay

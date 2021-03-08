@@ -1,19 +1,15 @@
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
-const downloadFile = require('./src/downloadFile');
+const downloadMetadata = require('./src/downloadMetadata');
 const handleDownload = require('./src/handleDownload');
 
-const metadataPath = 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplaysmetadata/public%2F';
-
 const downloadReplay = (matchId, callback = (result, err) => { }, config, updateCallback = () => { }) => {
-  downloadFile(metadataPath + matchId + '.json', config.deviceAuth, (data, err) => {
-    if (!data) {
+  downloadMetadata(matchId, config.deviceAuth, (meta, err) => {
+    if (!meta) {
       callback(false, err);
 
       return;
     }
-
-    const meta = JSON.parse(data);
 
     const downloadChunks = [];
     const resultChunks = [];
@@ -169,4 +165,4 @@ const downloadReplay = (matchId, callback = (result, err) => { }, config, update
   });
 };
 
-module.exports = downloadReplay;
+module.exports = { downloadReplay, downloadMetadata};

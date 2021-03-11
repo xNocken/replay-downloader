@@ -1,32 +1,21 @@
 const request = require("request");
-const getAccessToken = require("./getAccessToken");
+const getDownloadLink = require("./getDownloadLink");
 
 const downloadFile = (link, deviceAuth, callback, encoding = 'utf-8') => {
-  getAccessToken(deviceAuth, (accessToken) => {
-    request(link, {
+  getDownloadLink(link, deviceAuth, (readLink) => {
+    request(readLink, {
+      encoding,
       headers: {
-        Authorization: accessToken,
+        'User-Agent': 'Tournament replay downloader',
       }
-    }, (err, res, body) => {
-      if (err || res.statusCode !== 200) {
-        callback(false, err || body);
+    }, (err2, res2, body2) => {
+      if (err2 || res2.statusCode !== 200) {
+        callback(false, err || body2);
 
         return;
       }
 
-      const { readLink } = Object.values(JSON.parse(body).files)[0];
-
-      request(readLink, {
-        encoding,
-      }, (err2, res2, body2) => {
-        if (err2 || res2.statusCode !== 200) {
-          callback(false, err || body2);
-
-          return;
-        }
-
-        callback(body2);
-      });
+      callback(body2);
     });
   });
 };

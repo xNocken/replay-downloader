@@ -1,8 +1,9 @@
 const request = require('request');
 const fs = require('fs');
+const { iosAuthorization, tokenEndpoint } = require('../constants');
 
 const headers = {
-  Authorization: 'basic MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE=',
+  Authorization: iosAuthorization,
 };
 
 const body = {
@@ -24,7 +25,7 @@ const getAccessToken = (auths, callback) => {
     }
   }
 
-  request('https://account-public-service-prod.ol.epicgames.com/account/api/oauth/token', {
+  request(tokenEndpoint, {
     method: 'post',
     headers,
     form: {

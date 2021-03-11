@@ -1,15 +1,34 @@
+const { baseDataUrl } = require('./constants');
+const addDownloadLinksToList = require('./src/addDownloadLinksToList');
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
 const downloadMetadata = require('./src/downloadMetadata');
+const getDownloadLink = require('./src/getDownloadLink');
 const handleDownload = require('./src/handleDownload');
 
-const downloadReplay = (matchId, callback = (result, err) => { }, config, updateCallback = () => { }) => {
-  downloadMetadata(matchId, config.deviceAuth, (meta, err) => {
+const defaultDownloadConfig = {
+  callback: () => { },
+  updateCallback: () => { },
+  eventCount: 1000,
+  dataCount: 1000,
+  checkpointCount: 1000,
+  matchId: '',
+};
+
+const downloadReplay = (inConfig) => {
+  const config = {
+    ...defaultDownloadConfig,
+    ...inConfig,
+  }
+
+  downloadMetadata(config.matchId, config.deviceAuth, (meta, err) => {
     if (!meta) {
       callback(false, err);
 
       return;
     }
+
+    const { callback, updateCallback, matchId } = config;
 
     const downloadChunks = [];
     const resultChunks = [];
@@ -165,4 +184,70 @@ const downloadReplay = (matchId, callback = (result, err) => { }, config, update
   });
 };
 
-module.exports = { downloadReplay, downloadMetadata};
+const metadataDefaultConfig = {
+  matchId: '',
+  callback: () => { },
+  chunkDownloadLinks: {
+    header: false,
+    events: false,
+    data: false,
+    checkpoints: false,
+  },
+};
+
+const downloadMetadataWrapper = (inConfig) => {
+  const config = {
+    ...metadataDefaultConfig,
+    ...inConfig,
+  }
+
+  const { callback } = config;
+
+  downloadMetadata(config.matchId, config.deviceAuth, (metadata, err) => {
+    if (!metadata) {
+      callback(metadata, err);
+      return;
+    }
+
+    let doneCount = 0;
+    let finishCount = 0;
+
+    const doneHandler = () => {
+      doneCount++;
+
+      if (doneCount === finishCount) {
+        callback(metadata);
+      }
+    }
+
+    if (config.chunkDownloadLinks.header) {
+      finishCount++;
+      getDownloadLink(`${baseDataUrl}${config.matchId}/header.bin`, config.deviceAuth, (link) => {
+        metadata.HeaderDownloadLink = link;
+
+        doneHandler();
+      });
+    }
+
+    if (config.chunkDownloadLinks.events) {
+      finishCount++;
+      addDownloadLinksToList(metadata.Events, 0, config.matchId, config.deviceAuth, doneHandler);
+    }
+
+    if (config.chunkDownloadLinks.data) {
+      finishCount++;
+      addDownloadLinksToList(metadata.DataChunks, 0, config.matchId, config.deviceAuth, doneHandler);
+    }
+
+    if (config.chunkDownloadLinks.checkpoints) {
+      finishCount++;
+      addDownloadLinksToList(metadata.Checkpoints, 0, config.matchId, config.deviceAuth, doneHandler);
+    }
+
+    if (finishCount === 0) {
+      callback(metadata);
+    }
+  });
+};
+
+module.exports = { downloadReplay, downloadMetadata: downloadMetadataWrapper };

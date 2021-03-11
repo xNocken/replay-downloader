@@ -1,6 +1,5 @@
+const { baseDataUrl } = require("../constants");
 const downloadFile = require("./downloadFile");
-
-const baseFolderUrl = 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplays/public%2F';
 
 const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], updateCallback) => {
   const nextChunk = chunks.shift();
@@ -11,7 +10,7 @@ const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], upd
     return;
   }
 
-  downloadFile(`${ baseFolderUrl }${ matchId }%2F${ nextChunk.Id }.bin`, deviceAuth, (data, err) => {
+  downloadFile(`${baseDataUrl}${matchId}/${nextChunk.Id}.bin`, deviceAuth, (data, err) => {
     if (!data) {
       callback(false, err);
 

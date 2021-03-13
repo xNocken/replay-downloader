@@ -187,6 +187,7 @@ const downloadReplay = (inConfig) => {
 const metadataDefaultConfig = {
   matchId: '',
   callback: () => { },
+  useCache: true,
   chunkDownloadLinks: {
     header: false,
     events: false,
@@ -203,7 +204,7 @@ const downloadMetadataWrapper = (inConfig) => {
 
   const { callback } = config;
 
-  downloadMetadata(config.matchId, config.deviceAuth, (metadata, err) => {
+  downloadMetadata(config.matchId, config.deviceAuth, config.useCache, (metadata, err) => {
     if (!metadata) {
       callback(metadata, err);
       return;

@@ -8,14 +8,14 @@ const downloadFile = (link, deviceAuth, callback, encoding = 'utf-8') => {
       headers: {
         'User-Agent': 'Tournament replay downloader',
       }
-    }, (err2, res2, body2) => {
-      if (err2 || res2.statusCode !== 200) {
-        callback(false, err || body2);
+    }, (err, res, body) => {
+      if (err || res.statusCode !== 200) {
+        callback(false, err || body);
 
         return;
       }
 
-      callback(body2);
+      callback(body);
     });
   });
 };

@@ -27,6 +27,7 @@ replayDownloader.downloadReplay({
 
 replayDownloader.downloadMetadata({
   matchId: '09525a55bf724b54b6cae5921f80dcba',
+  enableCache: true,
   chunkDownloadLinks: {
     header: true,
     events: false,

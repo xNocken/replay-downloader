@@ -4,7 +4,7 @@
   },
   "name": "fortnite-replay-downloader",
   "description": "This module is made to download tournament replays from the Fortnite servers.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "index.js",
   "devDependencies": {},
   "scripts": {

@@ -11,8 +11,8 @@ replayDownloader.downloadReplay({
       console.log(err);
     }
   },
-  eventCount: 0,
-  dataCount: 1,
+  eventCount: 1000,
+  dataCount: 1000,
   checkpointCount: 0,
   deviceAuth,
   updateCallback: (data) => {
@@ -28,12 +28,7 @@ replayDownloader.downloadReplay({
 replayDownloader.downloadMetadata({
   matchId: '09525a55bf724b54b6cae5921f80dcba',
   enableCache: true,
-  chunkDownloadLinks: {
-    header: true,
-    events: false,
-    data: true,
-    checkpoints: false,
-  },
+  chunkDownloadLinks: true,
   deviceAuth,
   callback: (metadata, err) => {
     if (metadata) {

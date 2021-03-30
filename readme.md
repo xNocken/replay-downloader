@@ -86,12 +86,7 @@ Update callback structure
 ```js
 {
   matchId: string, // the match id to download
-  chunkDownloadLinks: {
-    header: boolean, // include download links for header chunks (increases download time a lot)
-    events: boolean, // include download links for event chunks (increases download time a lot)
-    data: boolean, // include download links for data chunks (increases download time a lot)
-    checkpoints: boolean, // include download links for checkpoint chunks (increases download time a lot)
-  },
+  chunkDownloadLinks: boolean, // gives you download links and file sizes for every chunk
   deviceAuth: device auth, // the login data from your account
   callback: (result, err) => {}
 }
@@ -110,6 +105,8 @@ Result structure
   bIsLive: boolean, // is the match currently running?
   bCompressed: boolean, // is the replay compressed. Current compression algorithm for replays is kraken
   DesiredDelayInSeconds: number,
+  DownloadLink: string, // header download link // expires after 15 minutes
+  FileSize: number,
   Checkpoints: [
     {
       Id: string, // chunk id
@@ -118,6 +115,7 @@ Result structure
       Time1: number, // start time
       Time2: number, // end time
       DownloadLink: string, // expires after 15 minutes
+      FileSize: number,
     }
   ],
   Events: [
@@ -128,6 +126,7 @@ Result structure
       Time1: number, // start time
       Time2: number, // end time
       DownloadLink: string, // expires after 15 minutes
+      FileSize: number,
     }
   ],
   DataChunks: [
@@ -135,10 +134,10 @@ Result structure
       Id: string, // data id
       Time1: number, // start time
       Time2: number, // end time
-      SizeInBytes: 4696373, // uncompressed size
+      SizeInBytes: number, // uncompressed size
       DownloadLink: string, // expires after 15 minutes
+      FileSize: number,
     }
   ],
-  HeaderDownloadLink: string, // expires after 15 minutes
 }
 ```

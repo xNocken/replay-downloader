@@ -1,22 +1,9 @@
-const request = require("request");
+const downloadFileWithLink = require("./downloadFileWithLink");
 const getDownloadLink = require("./getDownloadLink");
 
 const downloadFile = (link, deviceAuth, callback, encoding = 'utf-8') => {
   getDownloadLink(link, deviceAuth, (readLink) => {
-    request(readLink, {
-      encoding,
-      headers: {
-        'User-Agent': 'Tournament replay downloader',
-      }
-    }, (err, res, body) => {
-      if (err || res.statusCode !== 200) {
-        callback(false, err || body);
-
-        return;
-      }
-
-      callback(body);
-    });
+    downloadFileWithLink(Object.values(readLink)[0].readLink, encoding, callback);
   });
 };
 

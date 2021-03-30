@@ -1,5 +1,4 @@
-const { baseDataUrl } = require("../constants");
-const downloadFile = require("./downloadFile");
+const downloadFileWithLink = require("./downloadFileWithLink");
 
 const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], updateCallback) => {
   const nextChunk = chunks.shift();
@@ -10,7 +9,7 @@ const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], upd
     return;
   }
 
-  downloadFile(`${baseDataUrl}${matchId}/${nextChunk.Id}.bin`, deviceAuth, (data, err) => {
+  downloadFileWithLink(nextChunk.DownloadLink, nextChunk.encoding, (data, err) => {
     if (!data) {
       callback(false, err);
 
@@ -26,7 +25,7 @@ const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], upd
     updateCallback(nextChunk.chunkType);
 
     handleDownload(chunks, matchId, deviceAuth, callback, results, updateCallback);
-  }, nextChunk.encoding)
+  });
 }
 
 module.exports = handleDownload;

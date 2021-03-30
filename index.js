@@ -1,5 +1,4 @@
 const { baseDataUrl } = require('./constants');
-const addDownloadLinksToList = require('./src/addDownloadLinksToList');
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
 const downloadMetadata = require('./src/downloadMetadata');
@@ -21,179 +20,175 @@ const downloadReplay = (inConfig) => {
     ...inConfig,
   }
 
-  downloadMetadata(config.matchId, config.deviceAuth, (meta, err) => {
-    if (!meta) {
-      callback(false, err);
-
-      return;
-    }
-
-    const { callback, updateCallback, matchId } = config;
-
-    const downloadChunks = [];
-    const resultChunks = [];
-    let { DataChunks, Checkpoints, Events } = meta;
-
-    delete meta.DataChunks;
-    delete meta.Checkpoints;
-    delete meta.Events;
-
-    if (!DataChunks) {
-      DataChunks = [];
-    }
-
-    if (!Checkpoints) {
-      Checkpoints = [];
-    }
-
-    if (!Events) {
-      Events = [];
-    }
-
-    updateCallback({
-      header: {
-        current: 0,
-        max: 1,
-      },
-      dataChunks: {
-        current: 0,
-        max: Math.min(DataChunks.length, config.dataCount),
-      },
-      eventChunks: {
-        current: 0,
-        max: Math.min(Events.length, config.eventCount),
-      },
-      checkpointChunks: {
-        current: 0,
-        max: Math.min(Checkpoints.length, config.checkpointCount),
-      },
-    });
-
-    const metaBuffer = buildMeta(meta);
-
-    resultChunks.push({
-      type: 'meta',
-      size: metaBuffer.length,
-      data: metaBuffer,
-    });
-
-    downloadChunks.push({
-      type: 'chunk',
-      Id: 'header',
-      chunkType: 0,
-      size: 8,
-      encoding: null,
-    });
-
-    DataChunks.forEach((data, index) => {
-      if (index >= config.dataCount) {
-        return;
-      }
-
-      downloadChunks.push({
-        ...data,
-        type: 'chunk',
-        chunkType: 1,
-        size: 24,
-        encoding: null,
-      });
-    });
-
-    Events.forEach((data, index) => {
-      if (index >= config.eventCount) {
-        return;
-      }
-
-      downloadChunks.push({
-        ...data,
-        type: 'chunk',
-        chunkType: 3,
-        size: 35 + data.Id.length + data.Group.length + (data.Metadata ? data.Metadata.length : 0),
-        encoding: null,
-      });
-    });
-
-    Checkpoints.forEach((data, index) => {
-      if (index >= config.checkpointCount) {
-        return;
-      }
-
-      downloadChunks.push({
-        ...data,
-        type: 'chunk',
-        chunkType: 2,
-        size: 35 + data.Id.length + data.Group.length + (data.Metadata ? data.Metadata.length : 0),
-        encoding: null,
-      });
-    });
-
-    let dataDone = 0;
-    let eventDone = 0;
-    let checkpointDone = 0;
-    let headerDone = 0;
-
-    handleDownload(downloadChunks, matchId, config.deviceAuth, (result, err) => {
-      if (result) {
-        buildReplay(result, callback);
-      } else {
+  downloadMetadataWrapper({
+    ...config,
+    callback: (meta, err) => {
+      if (!meta) {
         callback(false, err);
-      }
-    }, resultChunks, (type) => {
-      if (!updateCallback) {
+
         return;
       }
 
-      switch (type) {
-        case 0:
-          headerDone++;
+      const { callback, updateCallback, matchId } = config;
 
-          break;
-        case 1:
-          dataDone++;
+      const downloadChunks = [];
+      const resultChunks = [];
+      let { DataChunks, Checkpoints, Events } = meta;
 
-          break;
-        case 2:
-          checkpointDone++;
+      delete meta.DataChunks;
+      delete meta.Checkpoints;
+      delete meta.Events;
 
-          break;
-        case 3:
-          eventDone++;
+      if (!DataChunks) {
+        DataChunks = [];
+      }
 
-          break;
+      if (!Checkpoints) {
+        Checkpoints = [];
+      }
+
+      if (!Events) {
+        Events = [];
       }
 
       updateCallback({
         header: {
-          current: headerDone,
+          current: 0,
           max: 1,
         },
         dataChunks: {
-          current: dataDone,
+          current: 0,
           max: Math.min(DataChunks.length, config.dataCount),
         },
         eventChunks: {
-          current: eventDone,
+          current: 0,
           max: Math.min(Events.length, config.eventCount),
         },
         checkpointChunks: {
-          current: checkpointDone,
+          current: 0,
           max: Math.min(Checkpoints.length, config.checkpointCount),
         },
       });
-    });
+
+      const metaBuffer = buildMeta(meta);
+
+      resultChunks.push({
+        type: 'meta',
+        size: metaBuffer.length,
+        data: metaBuffer,
+      });
+
+      downloadChunks.push({
+        DownloadLink: meta.DownloadLink,
+        chunkType: 0,
+        size: 8,
+        encoding: null,
+      });
+
+      DataChunks.forEach((data, index) => {
+        if (index >= config.dataCount) {
+          return;
+        }
+
+        downloadChunks.push({
+          ...data,
+          type: 'chunk',
+          chunkType: 1,
+          size: 24,
+          encoding: null,
+        });
+      });
+
+      Events.forEach((data, index) => {
+        if (index >= config.eventCount) {
+          return;
+        }
+
+        downloadChunks.push({
+          ...data,
+          type: 'chunk',
+          chunkType: 3,
+          size: 35 + data.Id.length + data.Group.length + (data.Metadata ? data.Metadata.length : 0),
+          encoding: null,
+        });
+      });
+
+      Checkpoints.forEach((data, index) => {
+        if (index >= config.checkpointCount) {
+          return;
+        }
+
+        downloadChunks.push({
+          ...data,
+          type: 'chunk',
+          chunkType: 2,
+          size: 35 + data.Id.length + data.Group.length + (data.Metadata ? data.Metadata.length : 0),
+          encoding: null,
+        });
+      });
+
+      let dataDone = 0;
+      let eventDone = 0;
+      let checkpointDone = 0;
+      let headerDone = 0;
+
+      handleDownload(downloadChunks, matchId, config.deviceAuth, (result, err) => {
+        if (result) {
+          buildReplay(result, callback);
+        } else {
+          callback(false, err);
+        }
+      }, resultChunks, (type) => {
+        if (!updateCallback) {
+          return;
+        }
+
+        switch (type) {
+          case 0:
+            headerDone++;
+
+            break;
+          case 1:
+            dataDone++;
+
+            break;
+          case 2:
+            checkpointDone++;
+
+            break;
+          case 3:
+            eventDone++;
+
+            break;
+        }
+
+        updateCallback({
+          header: {
+            current: headerDone,
+            max: 1,
+          },
+          dataChunks: {
+            current: dataDone,
+            max: Math.min(DataChunks.length, config.dataCount),
+          },
+          eventChunks: {
+            current: eventDone,
+            max: Math.min(Events.length, config.eventCount),
+          },
+          checkpointChunks: {
+            current: checkpointDone,
+            max: Math.min(Checkpoints.length, config.checkpointCount),
+          },
+        });
+      });
+    },
   });
 };
 
 const metadataDefaultConfig = {
   matchId: '',
   callback: () => { },
-  useCache: true,
-  chunkDownloadLinks: {
-    header: false,
-    events: false,
-    data: false,
-    checkpoints: false,
-  },
+  chunkDownloadLinks: true,
 };
 
 const downloadMetadataWrapper = (inConfig) => {
@@ -204,48 +199,47 @@ const downloadMetadataWrapper = (inConfig) => {
 
   const { callback } = config;
 
-  downloadMetadata(config.matchId, config.deviceAuth, config.useCache, (metadata, err) => {
+  downloadMetadata(config.matchId, config.deviceAuth, (metadata, err) => {
     if (!metadata) {
       callback(metadata, err);
       return;
     }
 
-    let doneCount = 0;
     let finishCount = 0;
 
-    const doneHandler = () => {
-      doneCount++;
+    if (config.chunkDownloadLinks) {
+      getDownloadLink(`${baseDataUrl}${config.matchId}/`, config.deviceAuth, (files) => {
+        const eacher = (chunk) => {
+          const index = `public/${config.matchId}/${chunk.Id}.bin`;
 
-      if (doneCount === finishCount) {
+          if (!files[index]) {
+            console.log(index, 'not found in files list');
+            return;
+          }
+
+          chunk.DownloadLink = files[index].readLink;
+          chunk.FileSize = files[index].size;
+        };
+
+        if (metadata.Events) {
+          metadata.Events.forEach(eacher);
+        }
+
+        if (metadata.Checkpoints) {
+          metadata.Checkpoints.forEach(eacher);
+        }
+
+        if (metadata.DataChunks) {
+          metadata.DataChunks.forEach(eacher);
+        }
+
+        metadata.Id = 'header';
+        eacher(metadata);
+        delete metadata.Id;
+
         callback(metadata);
-      }
-    }
-
-    if (config.chunkDownloadLinks.header) {
-      finishCount++;
-      getDownloadLink(`${baseDataUrl}${config.matchId}/header.bin`, config.deviceAuth, (link) => {
-        metadata.HeaderDownloadLink = link;
-
-        doneHandler();
       });
-    }
-
-    if (config.chunkDownloadLinks.events) {
-      finishCount++;
-      addDownloadLinksToList(metadata.Events, 0, config.matchId, config.deviceAuth, doneHandler);
-    }
-
-    if (config.chunkDownloadLinks.data) {
-      finishCount++;
-      addDownloadLinksToList(metadata.DataChunks, 0, config.matchId, config.deviceAuth, doneHandler);
-    }
-
-    if (config.chunkDownloadLinks.checkpoints) {
-      finishCount++;
-      addDownloadLinksToList(metadata.Checkpoints, 0, config.matchId, config.deviceAuth, doneHandler);
-    }
-
-    if (finishCount === 0) {
+    } else {
       callback(metadata);
     }
   });

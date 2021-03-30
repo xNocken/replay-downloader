@@ -15,7 +15,7 @@ const getDownloadLink = (link, deviceAuth, callback) => {
         return;
       }
 
-      callback(Object.values(JSON.parse(body).files)[0].readLink)
+      callback(JSON.parse(body).files);
     });
   });
 };

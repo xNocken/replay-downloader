@@ -80,6 +80,7 @@ const downloadReplay = (inConfig) => {
 
       downloadChunks.push({
         DownloadLink: meta.DownloadLink,
+        type: 'chunk',
         chunkType: 0,
         size: 8,
         encoding: null,

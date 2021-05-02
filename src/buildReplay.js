@@ -1,7 +1,7 @@
 const Replay = require("./Replay");
 const Size = require("./Size");
 
-const buildReplay = (parts, callback) => {
+const buildReplay = (parts) => {
   const size = new Size();
 
   parts.forEach((chunk) => {
@@ -9,7 +9,7 @@ const buildReplay = (parts, callback) => {
   });
 
   let newBuffer = new Replay(size.getBuffer());
-  
+
   parts.forEach((part) => {
     switch (part.type) {
       case 'meta':
@@ -51,7 +51,7 @@ const buildReplay = (parts, callback) => {
     }
   });
 
-  callback(newBuffer.buffer);
+  return newBuffer.buffer;
 };
 
 module.exports = buildReplay;

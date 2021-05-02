@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "request": "^2.88.2"
+    "needle": "^2.6.0"
   },
   "name": "fortnite-replay-downloader",
   "description": "This module is made to download tournament replays from the Fortnite servers.",

@@ -1,23 +1,27 @@
-const request = require("request");
+const needle = require("needle");
 const getAccessToken = require("./getAccessToken");
 
-const getDownloadLink = (link, deviceAuth, callback) => {
-  getAccessToken(deviceAuth, (accessToken) => {
-    request(link, {
-      headers: {
-        Authorization: accessToken,
-        'User-Agent': 'Tournament replay downloader',
-      }
-    }, (err, res, body) => {
-      if (err || res.statusCode !== 200) {
-        callback(false, err || body);
+const getDownloadLink = async (link, deviceAuth, inToken) => {
+  let token;
 
-        return;
-      }
+  if (inToken) {
+    token = `bearer ${inToken}`;
+  } else {
+    ({ token } = await getAccessToken(deviceAuth));
+  }
 
-      callback(JSON.parse(body).files);
-    });
+  const { body, statusCode } = await needle(link, {
+    headers: {
+      Authorization: token,
+      'User-Agent': 'Tournament replay downloader',
+    },
   });
+
+  if (statusCode !== 200) {
+    throw Error(`statuscode is not 200. Instead got ${statusCode}`);
+  }
+
+  return body.files;
 };
 
 module.exports = getDownloadLink;

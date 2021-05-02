@@ -9,53 +9,46 @@ This module is made to download tournament replays from the Fortnite servers.
 - Get download links for chunks
 
 ## Requirements
-- [Device Auth](https://github.com/MixV2/EpicResearch/blob/master/docs/auth/grant_types/device_auth.md)
+- [Device Auth](https://github.com/MixV2/EpicResearch/blob/master/docs/auth/grant_types/device_auth.md) or any eg1 access token
 
 ## Usage
 ```js
 const replayDownloader = require('fortnite-replay-downloader');
-const deviceAuth = {
-  device_id: "DeviceId",
-  account_id: "AccountId",
-  secret: "Secret"
-};
+const accessToken = 'eg1~token';
 
 replayDownloader.downloadReplay({
   matchId: '09525a55bf724b54b6cae5921f80dcba',
-  callback: (replay, err) => {
-    if (replay) {
-      console.log('Replay downloaded');
-    } else {
-      console.log(err);
-    }
-  },
   eventCount: 1000,
   dataCount: 1000,
   checkpointCount: 1000,
-  deviceAuth,
+  accessToken,
   updateCallback: (data) => {
     console.log('');
     console.log('header', `${data.header.current}/${data.header.max}`);
     console.log('data', `${data.dataChunks.current}/${data.dataChunks.max}`);
     console.log('events', `${data.eventChunks.current}/${data.eventChunks.max}`);
     console.log('checkpoints', `${data.checkpointChunks.current}/${data.checkpointChunks.max}`);
-  }
+  },
+}).then((replay) => {
+  console.log('Replay downloaded');
+}).catch((err) => {
+  console.log(err);
 });
 ```
 
 ## Methods
 
-### downloadReplay(config)
+### downloadReplay(config): promise(buffer)
 
 Config
 ```js
 {
   matchId: string, // the match id to download
-  callback: (replay, err) => {}, // the callback that gets called when the replay was downloaded
   checkpointCount: number, // the amount of checkpoint chunks to download
   dataCount: number, // the amount of data chunks to download
   eventCount: number, // the amount of event chunks to download
   deviceAuth: device auth, // the login data from your account
+  accessToken: eg1 token, // the access token from you account
   updateCallback: (updateData) => {}
 }
 ```
@@ -81,14 +74,14 @@ Update callback structure
   },
 }
 ```
-### downloadMetadata(config)
+### downloadMetadata(config): promise(result)
 
 ```js
 {
   matchId: string, // the match id to download
   chunkDownloadLinks: boolean, // gives you download links and file sizes for every chunk
   deviceAuth: device auth, // the login data from your account
-  callback: (result, err) => {}
+  accessToken: eg1 token, // the access token from you account
 }
 ```
 

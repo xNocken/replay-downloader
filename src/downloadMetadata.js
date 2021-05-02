@@ -1,18 +1,14 @@
 const { metaDataUrl } = require('../constants');
 const downloadFile = require('./downloadFile');
 
-const downloadMetadata = (matchId, deviceAuth, callback) => {
-  downloadFile(metaDataUrl + matchId + '.json', deviceAuth, (data, err) => {
-    if (!data) {
-      callback(false, err);
+const downloadMetadata = async (matchId, deviceAuth, token) => {
+  const data = await downloadFile(metaDataUrl + matchId + '.json', deviceAuth, token);
 
-      return;
-    }
+  if (!data) {
+    return;
+  }
 
-    const newData = JSON.parse(data);
-
-    callback(newData);
-  });
+  return JSON.parse(data.toString());
 };
 
 module.exports = downloadMetadata;

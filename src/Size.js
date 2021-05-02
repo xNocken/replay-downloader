@@ -21,7 +21,7 @@ class Size {
 
   validate(replay) {
     if (replay.offset !== this.size + (this._bitSize ? 1 : 0)) {
-      throw Error(`Invalid buffer size. Expected to wrize ${ this.size } bytes, instead wrote ${ replay.offset }`);
+      throw Error(`Invalid buffer size. Expected to write ${ this.size } bytes, instead wrote ${ replay.offset }`);
     }
   }
 }

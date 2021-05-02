@@ -1,20 +1,19 @@
-const request = require("request");
+const needle = require("needle");
 
-const downloadFileWithLink = (link, encoding, callback) => {
-  request(link, {
-    encoding,
+const downloadFileWithLink = async (link) => {
+  const data = await needle(link, {
     headers: {
       'User-Agent': 'Tournament replay downloader',
     }
-  }, (err, res, body) => {
-    if (err || res.statusCode !== 200) {
-      callback(false, err || body);
-
-      return;
-    }
-
-    callback(body);
   });
+
+  const { body, statusCode } = data;
+
+  if (statusCode !== 200) {
+    throw Error(`statuscode is not 200. Instead got ${statusCode}`);
+  }
+
+  return body;
 };
 
 module.exports = downloadFileWithLink;

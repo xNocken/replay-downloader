@@ -1,9 +1,11 @@
-const request = require('request');
+const needle = require('needle');
 const fs = require('fs');
-const { iosAuthorization, tokenEndpoint } = require('../constants');
+const { authClientId, authClientSecret, tokenEndpoint } = require('../constants');
 
-const headers = {
-  Authorization: iosAuthorization,
+const options = {
+  auth: 'basic',
+  username: authClientId,
+  password: authClientSecret,
 };
 
 const body = {
@@ -11,7 +13,7 @@ const body = {
   token_type: 'eg1',
 };
 
-const getAccessToken = (auths, callback) => {
+const getAccessToken = async (auths) => {
   let cache = {};
 
   if (fs.existsSync(module.path + '/../cache.json')) {
@@ -20,35 +22,34 @@ const getAccessToken = (auths, callback) => {
     const cachedData = cache[auths.account_id];
 
     if (cachedData && new Date(cachedData.expires_at).getTime() > Date.now()) {
-      callback(`${ cachedData.token_type } ${ cachedData.access_token }`, cache);
-      return;
+      return {
+        token: `${cachedData.token_type} ${cachedData.access_token}`,
+        tokenInfo: cachedData,
+      };
     }
   }
 
-  request(tokenEndpoint, {
-    method: 'post',
-    headers,
-    form: {
-      ...body,
-      ...auths,
-    },
-  }, (err, res, body) => {
-    if (err || res.statusCode !== 200) {
-      throw Error(err || body);
-    }
+  const { body: tokenData, statusCode } = await needle('post', tokenEndpoint, {
+    ...body,
+    ...auths,
+  }, options);
 
-    const tokenData = JSON.parse(body);
+  if (statusCode !== 200) {
+    throw Error(body);
+  }
 
-    if (body.error) {
-      throw Error(body.error);
-    }
+  if (tokenData.error) {
+    throw Error(tokenData.error);
+  }
 
-    cache[tokenData.account_id] = tokenData;
+  cache[tokenData.account_id] = tokenData;
 
-    fs.writeFileSync(module.path + '/../cache.json', JSON.stringify(cache))
+  fs.writeFileSync(module.path + '/../cache.json', JSON.stringify(cache))
 
-    callback(`${ tokenData.token_type } ${ tokenData.access_token }`, tokenData);
-  })
+  return {
+    token: `${tokenData.token_type} ${tokenData.access_token}`,
+    tokenInfo: tokenData,
+  };
 };
 
 module.exports = getAccessToken;

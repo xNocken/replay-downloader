@@ -18,30 +18,6 @@ class Replay {
     this.offset = offset;
   }
 
-  readInt64() {
-    this.offset += 8;
-
-    return this.buffer.readBigUInt64LE(this.offset - 8);
-  }
-
-  readInt32() {
-    this.offset += 4;
-
-    return this.buffer.readInt32LE(this.offset - 4);
-  }
-
-  readInt16() {
-    this.offset += 2;
-
-    return this.buffer.readInt16LE(this.offset - 2);
-  }
-
-  readByte() {
-    this.offset += 1;
-
-    return this.buffer[this.offset - 1];
-  }
-
   writeInt64(value, offset) {
     if (!offset) {
       this.offset += 8;
@@ -106,34 +82,6 @@ class Replay {
     bytes.forEach((byte, index) => {
       this.writeByte(byte, offset + index);
     })
-  }
-
-  readBytes(length) {
-    const result = this.buffer.slice(this.offset, this.offset + length);
-
-    this.offset += length;
-
-    return result;
-  }
-
-  readId() {
-    return this.readBytes(16).toString('hex');
-  }
-
-  readFString() {
-    const length = this.readInt32();
-
-    if (length === 0) {
-      return '';
-
-    }
-
-
-    if (length < 0) {
-      return this.readBytes(length * -2).slice(0, -2).toString('utf16le').trim();
-    }
-
-    return this.readBytes(length).slice(0, -1).toString('utf-8');
   }
 
   writeArray(array, fn) {

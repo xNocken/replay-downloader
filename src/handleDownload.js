@@ -1,31 +1,28 @@
 const downloadFileWithLink = require("./downloadFileWithLink");
 
-const handleDownload = (chunks, matchId, deviceAuth, callback, results = [], updateCallback) => {
-  const nextChunk = chunks.shift();
+const handleDownload = async (chunks, deviceAuth, callback, updateCallback) => {
+  const downloads = [];
+  const results = [];
 
-  if (!nextChunk) {
-    callback(results);
+  chunks.forEach((chunk) => {
+    const download = async () => {
+      const data = await downloadFileWithLink(chunk.DownloadLink, chunk.encoding);
 
-    return;
-  }
+      results.push({
+        ...chunk,
+        size: chunk.size + data.length,
+        data: data,
+      });
 
-  downloadFileWithLink(nextChunk.DownloadLink, nextChunk.encoding, (data, err) => {
-    if (!data) {
-      callback(false, err);
+      updateCallback(chunk.chunkType);
+    };
 
-      return;
-    }
-
-    results.push({
-      ...nextChunk,
-      size: nextChunk.size + data.length,
-      data: data,
-    });
-
-    updateCallback(nextChunk.chunkType);
-
-    handleDownload(chunks, matchId, deviceAuth, callback, results, updateCallback);
+    downloads.push(download());
   });
+
+  await Promise.all(downloads);
+
+  return results;
 }
 
 module.exports = handleDownload;

@@ -29,7 +29,6 @@ const downloadReplay = async (inConfig) => {
   const { updateCallback, matchId } = config;
 
   const downloadChunks = [];
-  const resultChunks = [];
   let { DataChunks, Checkpoints, Events } = meta;
 
   delete meta.DataChunks;
@@ -68,12 +67,6 @@ const downloadReplay = async (inConfig) => {
   });
 
   const metaBuffer = buildMeta(meta);
-
-  resultChunks.push({
-    type: 'meta',
-    size: metaBuffer.length,
-    data: metaBuffer,
-  });
 
   downloadChunks.push({
     DownloadLink: meta.DownloadLink,
@@ -174,7 +167,14 @@ const downloadReplay = async (inConfig) => {
     });
   });
 
-  return buildReplay(result);
+  return buildReplay([
+    {
+      type: 'meta',
+      size: metaBuffer.length,
+      data: metaBuffer,
+    },
+    ...result
+  ]);
 };
 
 const metadataDefaultConfig = {

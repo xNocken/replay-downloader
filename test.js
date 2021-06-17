@@ -7,6 +7,7 @@ replayDownloader.downloadReplay({
   eventCount: 1000,
   dataCount: 1000,
   checkpointCount: 0,
+  maxConcurrentDownloads: 10,
   deviceAuth,
   updateCallback: (data) => {
     console.log('');

@@ -1,6 +1,6 @@
 const needle = require('needle');
 const fs = require('fs');
-const { authClientId, authClientSecret, tokenEndpoint } = require('../constants');
+const { authClientId, authClientSecret, tokenEndpoint, verifyEndpoint, timeUntilNextCheck } = require('../constants');
 
 const options = {
   auth: 'basic',
@@ -13,6 +13,31 @@ const body = {
   token_type: 'eg1',
 };
 
+const lastTokenCheck = {};
+
+const checkToken = async (token) => {
+  if (lastTokenCheck[token] < Date.now() + (timeUntilNextCheck * 1000)) {
+    return true;
+  }
+
+  const { statusCode, body } = await needle(verifyEndpoint, {
+    method: 'post',
+    headers: {
+      Authorization: token,
+    }
+  });
+
+  const isValid = statusCode === 200;
+
+  if (!isValid) {
+    delete lastTokenCheck[token];
+  } else {
+    lastTokenCheck[token] = Date.now();
+  }
+
+  return isValid;
+}
+
 const getAccessToken = async (auths) => {
   let cache = {};
 
@@ -22,10 +47,12 @@ const getAccessToken = async (auths) => {
     const cachedData = cache[auths.account_id];
 
     if (cachedData && new Date(cachedData.expires_at).getTime() > Date.now()) {
-      return {
-        token: `${cachedData.token_type} ${cachedData.access_token}`,
-        tokenInfo: cachedData,
-      };
+      if (await checkToken(`${cachedData.token_type} ${cachedData.access_token}`)) {
+        return {
+          token: `${cachedData.token_type} ${cachedData.access_token}`,
+          tokenInfo: cachedData,
+        };
+      }
     }
   }
 

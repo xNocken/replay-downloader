@@ -10,6 +10,7 @@ const defaultDownloadConfig = {
   eventCount: 1000,
   dataCount: 1000,
   checkpointCount: 1000,
+  maxConcurrentDownloads: Infinity,
   matchId: '',
   token: '',
 };
@@ -123,7 +124,7 @@ const downloadReplay = async (inConfig) => {
   let checkpointDone = 0;
   let headerDone = 0;
 
-  const result = await handleDownload(downloadChunks, matchId, config.deviceAuth, (type) => {
+  const result = await handleDownload(downloadChunks, config.maxConcurrentDownloads, (type) => {
     if (!updateCallback) {
       return;
     }

@@ -45,6 +45,7 @@ Config
 {
   matchId: string, // the match id to download
   checkpointCount: number, // the amount of checkpoint chunks to download
+  maxConcurrentDownloads: number // the amount of chunks downloaded at the same time (default: infinity)
   dataCount: number, // the amount of data chunks to download
   eventCount: number, // the amount of event chunks to download
   deviceAuth: device auth, // the login data from your account

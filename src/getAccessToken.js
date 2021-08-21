@@ -62,7 +62,7 @@ const getAccessToken = async (auths) => {
   }, options);
 
   if (statusCode !== 200) {
-    throw Error(body);
+    throw Error(tokenData.errorMessage);
   }
 
   if (tokenData.error) {

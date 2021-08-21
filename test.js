@@ -3,7 +3,7 @@ const deviceAuth = require('./deviceAuths.json');
 const fs = require('fs');
 
 replayDownloader.downloadReplay({
-  matchId: '09525a55bf724b54b6cae5921f80dcba',
+  matchId: '5f031170d1dd4d62acb1ace83e034a86',
   eventCount: 1000,
   dataCount: 1000,
   checkpointCount: 0,

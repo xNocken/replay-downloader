@@ -4,20 +4,9 @@ const Size = require('./Size');
 const buildMeta = (header) => {
   let size = new Size();
 
-  size.size += 4;
-  size.size += 4;
-  size.size += 4;
-  size.size += 4;
-  size.size += 4;
+  size.size += 44;
 
   size.size += header.FriendlyName.length + 5;
-
-  size.size += 4;
-  size.size += 8;
-  size.size += 4;
-  size.size += 4;
-
-  size.size += 4;
 
   const buffer = new Replay(size.getBuffer());
 

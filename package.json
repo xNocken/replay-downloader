@@ -21,6 +21,7 @@
     "tournaments",
     "server"
   ],
+  "typings": "./index.d.ts",
   "author": "xNocken",
   "license": "MIT",
   "bugs": {

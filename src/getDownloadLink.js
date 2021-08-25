@@ -1,5 +1,6 @@
 const needle = require("needle");
 const getAccessToken = require("./getAccessToken");
+const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
 const getDownloadLink = async (link, deviceAuth, inToken) => {
   let token;
@@ -18,7 +19,7 @@ const getDownloadLink = async (link, deviceAuth, inToken) => {
   });
 
   if (statusCode !== 200) {
-    throw Error(`statuscode is not 200. Instead got ${statusCode}: ${body.errorMessage || body.children[0]?.value || 'no error message provided'}`);
+    throw new UnsuccessfulRequestException(statusCode, body);
   }
 
   return body.files;

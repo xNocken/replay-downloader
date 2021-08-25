@@ -1,4 +1,5 @@
 const needle = require("needle");
+const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
 const downloadFileWithLink = async (link) => {
   const data = await needle(link, {
@@ -10,7 +11,7 @@ const downloadFileWithLink = async (link) => {
   const { body, statusCode } = data;
 
   if (statusCode !== 200) {
-    throw Error(`statuscode is not 200. Instead got ${statusCode}: ${body.errorMessage || body.children[0]?.value || 'no error message provided'}`);
+    throw new UnsuccessfulRequestException(statusCode, body);
   }
 
   return body;

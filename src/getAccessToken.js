@@ -1,6 +1,7 @@
 const needle = require('needle');
 const fs = require('fs');
 const { authClientId, authClientSecret, tokenEndpoint, verifyEndpoint, timeUntilNextCheck } = require('../constants');
+const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
 const options = {
   auth: 'basic',
@@ -61,12 +62,8 @@ const getAccessToken = async (auths) => {
     ...auths,
   }, options);
 
-  if (statusCode !== 200) {
-    throw Error(tokenData.errorMessage);
-  }
-
-  if (tokenData.error) {
-    throw Error(tokenData.error);
+  if (statusCode !== 200 || tokenData.error) {
+    throw new UnsuccessfulRequestException(statusCode, tokenData);
   }
 
   cache[tokenData.account_id] = tokenData;

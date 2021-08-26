@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/fortnite-replay-downloader.svg)](https://npmjs.com/package/fortnite-replay-downloader)
+
 # Fortnite Replay Downloader
 This module is made to download tournament replays from the Fortnite servers.
 

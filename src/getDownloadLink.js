@@ -1,5 +1,6 @@
-const needle = require("needle");
-const getAccessToken = require("./getAccessToken");
+const needle = require('needle');
+
+const getAccessToken = require('./getAccessToken');
 const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
 const getDownloadLink = async (link, deviceAuth, inToken) => {

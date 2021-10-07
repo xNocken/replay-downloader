@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const { baseDataUrl } = require('./constants');
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
@@ -188,19 +187,19 @@ const downloadReplay = async (inConfig) => {
 
     switch (type) {
       case 0:
-        headerDone++;
+        headerDone += 1;
 
         break;
       case 1:
-        dataDone++;
+        dataDone += 1;
 
         break;
       case 2:
-        checkpointDone++;
+        checkpointDone += 1;
 
         break;
       case 3:
-        eventDone++;
+        eventDone += 1;
 
         break;
       default:
@@ -233,7 +232,7 @@ const downloadReplay = async (inConfig) => {
       size: metaBuffer.length,
       data: metaBuffer,
     },
-    ...result
+    ...result,
   ]);
 };
 

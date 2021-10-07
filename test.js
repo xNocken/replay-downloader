@@ -1,6 +1,7 @@
+const fs = require('fs');
+
 const replayDownloader = require('.');
 const deviceAuth = require('./deviceAuths.json');
-const fs = require('fs');
 
 replayDownloader.downloadReplay({
   matchId: '5f031170d1dd4d62acb1ace83e034a86',
@@ -21,7 +22,7 @@ replayDownloader.downloadReplay({
   fs.writeFileSync('result.replay', replay);
 }).catch((err) => {
   console.log(err);
-})
+});
 
 // replayDownloader.downloadMetadata({
 //   matchId: '09525a55bf724b54b6cae5921f80dcba',

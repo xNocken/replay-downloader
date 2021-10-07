@@ -46,33 +46,33 @@ const checkToken = async (token) => {
   return isValid;
 };
 
-const getAccessToken = async (auths) => {
-  let cache = {};
+const getCachedToken = async (auths, cache) => {
+  const cachedData = cache[auths.account_id];
 
-  if (fs.existsSync(`${module.path}/../cache.json`)) {
-    cache = JSON.parse(fs.readFileSync(`${module.path}/../cache.json`));
-
-    const cachedData = cache[auths.account_id];
-
-    if (!cachedData) {
-      return {};
-    }
-
-    const isExpired = new Date(cachedData.expires_at).getTime() <= Date.now();
-
-    if (isExpired) {
-      return {};
-    }
-
-    const isTokenValid = await checkToken(`${cachedData.token_type} ${cachedData.access_token}`);
-
-    if (isTokenValid) {
-      return {
-        token: `${cachedData.token_type} ${cachedData.access_token}`,
-        tokenInfo: cachedData,
-      };
-    }
+  if (!cachedData) {
+    return null;
   }
+
+  const isExpired = new Date(cachedData.expires_at).getTime() <= Date.now();
+
+  if (isExpired) {
+    return null;
+  }
+
+  const isTokenValid = await checkToken(`${cachedData.token_type} ${cachedData.access_token}`);
+
+  if (!isTokenValid) {
+    return null;
+  }
+
+  return {
+    token: `${cachedData.token_type} ${cachedData.access_token}`,
+    tokenInfo: cachedData,
+  };
+};
+
+const fetchToken = async (auths, theCache) => {
+  const cache = theCache;
 
   const { body: tokenData, statusCode } = await needle('post', tokenEndpoint, {
     ...body,
@@ -91,6 +91,22 @@ const getAccessToken = async (auths) => {
     token: `${tokenData.token_type} ${tokenData.access_token}`,
     tokenInfo: tokenData,
   };
+};
+
+const getAccessToken = async (auths) => {
+  let cache = {};
+
+  if (fs.existsSync(`${module.path}/../cache.json`)) {
+    cache = JSON.parse(fs.readFileSync(`${module.path}/../cache.json`));
+
+    const cachedToken = await getCachedToken(auths, cache);
+
+    if (cachedToken) {
+      return cachedToken;
+    }
+  }
+
+  return fetchToken(auths, cache);
 };
 
 module.exports = getAccessToken;

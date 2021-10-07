@@ -1,5 +1,5 @@
-const Replay = require("./Replay");
-const Size = require("./Size");
+const Replay = require('./Replay');
+const Size = require('./Size');
 
 const buildReplay = (parts) => {
   const size = new Size();
@@ -8,9 +8,12 @@ const buildReplay = (parts) => {
     size.size += chunk.size;
   });
 
-  let newBuffer = new Replay(size.getBuffer());
+  const newBuffer = new Replay(size.getBuffer());
 
   parts.forEach((part) => {
+    let chunkTypeOffset = 0;
+    let startOffset = 0;
+
     switch (part.type) {
       case 'meta':
         newBuffer.writeBytes(part.data);
@@ -18,10 +21,9 @@ const buildReplay = (parts) => {
 
       case 'chunk':
         newBuffer.writeInt32(part.chunkType);
-        const chunkTypeOffset = newBuffer.offset;
+        chunkTypeOffset = newBuffer.offset;
         newBuffer.skip(4);
-
-        const startOffset = newBuffer.offset;
+        startOffset = newBuffer.offset;
 
         switch (part.chunkType) {
           case 0:
@@ -45,9 +47,17 @@ const buildReplay = (parts) => {
             newBuffer.writeInt32(part.Time2);
             newBuffer.writeInt32(part.data.length);
             newBuffer.writeBytes(part.data);
+            break;
+
+          default:
+            break;
         }
 
         newBuffer.writeInt32(newBuffer.offset - startOffset, chunkTypeOffset);
+        break;
+
+      default:
+        break;
     }
   });
 

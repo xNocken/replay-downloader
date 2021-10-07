@@ -1,9 +1,11 @@
+/* eslint-disable no-console */
 const { baseDataUrl } = require('./constants');
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
 const downloadMetadata = require('./src/downloadMetadata');
 const getDownloadLink = require('./src/getDownloadLink');
 const handleDownload = require('./src/handleDownload');
+const UnsuccessfulRequestException = require('./src/UnsuccessfulRequestException');
 
 const defaultDownloadConfig = {
   updateCallback: () => { },
@@ -15,6 +17,61 @@ const defaultDownloadConfig = {
   token: '',
 };
 
+const defaultMetadataConfig = {
+  matchId: '',
+  chunkDownloadLinks: true,
+  accessToken: '',
+};
+
+const downloadMetadataWrapper = async (inConfig) => {
+  const config = {
+    ...defaultMetadataConfig,
+    ...inConfig,
+  };
+
+  const metadata = await downloadMetadata(config.matchId, config.deviceAuth, config.accessToken);
+
+  if (!metadata) {
+    return null;
+  }
+
+  if (config.chunkDownloadLinks) {
+    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`, config.deviceAuth, config.accessToken);
+
+    const eacher = (theChunk) => {
+      const chunk = theChunk;
+      const index = `public/${config.matchId}/${chunk.Id}.bin`;
+
+      if (!files[index]) {
+        console.error(index, 'not found in files list');
+
+        return;
+      }
+
+      chunk.DownloadLink = files[index].readLink;
+      chunk.FileSize = files[index].size;
+    };
+
+    if (metadata.Events) {
+      metadata.Events.forEach(eacher);
+    }
+
+    if (metadata.Checkpoints) {
+      metadata.Checkpoints.forEach(eacher);
+    }
+
+    if (metadata.DataChunks) {
+      metadata.DataChunks.forEach(eacher);
+    }
+
+    metadata.Id = 'header';
+    eacher(metadata);
+    delete metadata.Id;
+  }
+
+  return metadata;
+};
+
 const downloadReplay = async (inConfig) => {
   const config = {
     ...defaultDownloadConfig,
@@ -24,10 +81,10 @@ const downloadReplay = async (inConfig) => {
   const meta = await downloadMetadataWrapper(config);
 
   if (!meta) {
-    return;
+    throw new UnsuccessfulRequestException(500);
   }
 
-  const { updateCallback, matchId } = config;
+  const { updateCallback } = config;
 
   const downloadChunks = [];
   let { DataChunks, Checkpoints, Events } = meta;
@@ -146,6 +203,8 @@ const downloadReplay = async (inConfig) => {
         eventDone++;
 
         break;
+      default:
+        break;
     }
 
     updateCallback({
@@ -176,55 +235,6 @@ const downloadReplay = async (inConfig) => {
     },
     ...result
   ]);
-};
-
-const metadataDefaultConfig = {
-  matchId: '',
-  chunkDownloadLinks: true,
-  accessToken: '',
-};
-
-const downloadMetadataWrapper = async (inConfig) => {
-  const config = {
-    ...metadataDefaultConfig,
-    ...inConfig,
-  };
-
-  const metadata = await downloadMetadata(config.matchId, config.deviceAuth, config.accessToken);
-
-  if (config.chunkDownloadLinks) {
-    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`, config.deviceAuth, config.accessToken);
-
-    const eacher = (chunk) => {
-      const index = `public/${config.matchId}/${chunk.Id}.bin`;
-
-      if (!files[index]) {
-        console.error(index, 'not found in files list');
-        return;
-      }
-
-      chunk.DownloadLink = files[index].readLink;
-      chunk.FileSize = files[index].size;
-    };
-
-    if (metadata.Events) {
-      metadata.Events.forEach(eacher);
-    }
-
-    if (metadata.Checkpoints) {
-      metadata.Checkpoints.forEach(eacher);
-    }
-
-    if (metadata.DataChunks) {
-      metadata.DataChunks.forEach(eacher);
-    }
-
-    metadata.Id = 'header';
-    eacher(metadata);
-    delete metadata.Id;
-  }
-
-  return metadata;
 };
 
 module.exports = { downloadReplay, downloadMetadata: downloadMetadataWrapper };

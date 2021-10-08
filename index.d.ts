@@ -57,7 +57,7 @@ interface MetaDataOptions {
   chunkDownloadLinks: boolean,
   deviceAuth?: DeviceAuth,
   accessToken?: string,
-};
+}
 
 interface UpdateInfo {
   current: number,
@@ -70,7 +70,6 @@ interface UpdateObject {
   events: UpdateInfo,
   checkpoints: UpdateInfo,
 }
-
 
 interface ReplayOptions {
   matchId: string,

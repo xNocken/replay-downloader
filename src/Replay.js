@@ -65,10 +65,7 @@ class Replay {
       this.offset += 1;
     }
 
-    // eslint-disable-next-line no-multi-assign
-    const buffer = this.buffer[offset || (this.offset - 1)] = value & 255;
-
-    return buffer;
+    this.buffer[offset || (this.offset - 1)] = value & 255;
   }
 
   writeGuid(guid) {

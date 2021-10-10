@@ -1,18 +1,31 @@
 {
+  "name": "fortnite-replay-downloader",
+  "version": "2.0.5",
+  "description": "This module is made to download tournament replays from the Fortnite servers.",
+  "author": "xNocken",
+  "license": "MIT",
+  "homepage": "https://github.com/xNocken/replay-downloader#readme",
+  "main": "index.js",
+  "typings": "./index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "needle": "^2.6.0"
   },
-  "name": "fortnite-replay-downloader",
-  "description": "This module is made to download tournament replays from the Fortnite servers.",
-  "version": "2.0.5",
-  "main": "index.js",
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/eslint-parser": "^7.15.8",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xNocken/replay-downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xNocken/replay-downloader/issues"
   },
   "keywords": [
     "fortnite",
@@ -20,12 +33,5 @@
     "downloader",
     "tournaments",
     "server"
-  ],
-  "typings": "./index.d.ts",
-  "author": "xNocken",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/xNocken/replay-downloader/issues"
-  },
-  "homepage": "https://github.com/xNocken/replay-downloader#readme"
+  ]
 }

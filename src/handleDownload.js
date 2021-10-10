@@ -1,4 +1,4 @@
-const downloadFileWithLink = require("./downloadFileWithLink");
+const downloadFileWithLink = require('./downloadFileWithLink');
 
 const handleDownload = async (chunks, maxConcurrentDownloads, updateCallback) => {
   const downloads = [];
@@ -11,7 +11,7 @@ const handleDownload = async (chunks, maxConcurrentDownloads, updateCallback) =>
       results[index] = {
         ...chunk,
         size: chunk.size + data.length,
-        data: data,
+        data,
       };
 
       updateCallback(chunk.chunkType);
@@ -27,6 +27,6 @@ const handleDownload = async (chunks, maxConcurrentDownloads, updateCallback) =>
   }
 
   return results;
-}
+};
 
 module.exports = handleDownload;

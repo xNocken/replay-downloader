@@ -2,7 +2,7 @@ const Replay = require('./Replay');
 const Size = require('./Size');
 
 const buildMeta = (header) => {
-  let size = new Size();
+  const size = new Size();
 
   size.size += 44;
 
@@ -25,6 +25,6 @@ const buildMeta = (header) => {
   size.validate(buffer);
 
   return buffer.buffer;
-}
+};
 
 module.exports = buildMeta;

@@ -3,7 +3,9 @@ class Replay {
    * @type {Buffer}
    */
   buffer;
+
   header = {};
+
   offset = 0;
 
   constructor(replay) {
@@ -63,7 +65,7 @@ class Replay {
       this.offset += 1;
     }
 
-    return this.buffer[offset || (this.offset - 1)] = value & 255;
+    this.buffer[offset || (this.offset - 1)] = value & 255;
   }
 
   writeGuid(guid) {
@@ -73,7 +75,7 @@ class Replay {
   writeString(string, offset) {
     this.writeInt32(string.length + 1, offset);
 
-    this.writeBytes(Buffer.from(string, offset + 4))
+    this.writeBytes(Buffer.from(string, offset + 4));
 
     this.writeByte(0, offset);
   }
@@ -81,7 +83,7 @@ class Replay {
   writeBytes(bytes, offset) {
     bytes.forEach((byte, index) => {
       this.writeByte(byte, offset + index);
-    })
+    });
   }
 
   writeArray(array, fn) {
@@ -90,7 +92,7 @@ class Replay {
     array.forEach((entry) => {
       fn(this, entry);
     });
-  };
+  }
 
   writeObject(array, fn1, fn2) {
     this.writeInt32(Object.values(array).length);
@@ -99,7 +101,7 @@ class Replay {
       fn1(this, key);
       fn2(this, value);
     });
-  };
+  }
 
   atEnd() {
     return this.offset >= this.buffer.byteLength;

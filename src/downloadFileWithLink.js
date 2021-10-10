@@ -1,11 +1,12 @@
-const needle = require("needle");
+const needle = require('needle');
+
 const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
 const downloadFileWithLink = async (link) => {
   const data = await needle(link, {
     headers: {
       'User-Agent': 'Tournament replay downloader',
-    }
+    },
   });
 
   const { body, statusCode } = data;

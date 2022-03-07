@@ -48,7 +48,7 @@ Config
   maxConcurrentDownloads: number // the amount of chunks downloaded at the same time (default: infinity)
   dataCount: number, // the amount of data chunks to download
   eventCount: number, // the amount of event chunks to download
-  updateCallback: (updateData) => {} // gets calleda after every downloaded chunk with the current progress
+  updateCallback: (updateData) => {} // gets called after every downloaded chunk with the current progress
 }
 ```
 

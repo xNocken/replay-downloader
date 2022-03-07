@@ -1,11 +1,5 @@
 declare module 'fortnite-replay-downloader';
 
-interface DeviceAuth {
-  account_id: string,
-  secret: string,
-  device_id: string
-}
-
 interface Checkpoint {
   Id: string,
   Group: string,
@@ -55,8 +49,6 @@ interface MetaDataResult {
 interface MetaDataOptions {
   matchId: string,
   chunkDownloadLinks: boolean,
-  deviceAuth?: DeviceAuth,
-  accessToken?: string,
 }
 
 interface UpdateInfo {
@@ -77,8 +69,6 @@ interface ReplayOptions {
   checkpointCount?: number,
   dataCount?: number,
   eventCount?: number,
-  deviceAuth?: DeviceAuth,
-  accessToken?: string,
   updateCallback?: (UpdateInfo: UpdateObject) => void,
 }
 

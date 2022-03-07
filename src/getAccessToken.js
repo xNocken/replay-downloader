@@ -17,7 +17,7 @@ const options = {
 };
 
 const body = {
-  grant_type: 'device_auth',
+  grant_type: 'client_credentials',
   token_type: 'eg1',
 };
 
@@ -46,46 +46,37 @@ const checkToken = async (token) => {
   return isValid;
 };
 
-const getCachedToken = async (auths, cache) => {
-  const cachedData = cache[auths.account_id];
-
-  if (!cachedData) {
+const getCachedToken = async (cache) => {
+  if (!cache) {
     return null;
   }
 
-  const isExpired = new Date(cachedData.expires_at).getTime() <= Date.now();
+  const isExpired = new Date(cache.expires_at).getTime() <= Date.now();
 
   if (isExpired) {
     return null;
   }
 
-  const isTokenValid = await checkToken(`${cachedData.token_type} ${cachedData.access_token}`);
+  const isTokenValid = await checkToken(`${cache.token_type} ${cache.access_token}`);
 
   if (!isTokenValid) {
     return null;
   }
 
   return {
-    token: `${cachedData.token_type} ${cachedData.access_token}`,
-    tokenInfo: cachedData,
+    token: `${cache.token_type} ${cache.access_token}`,
+    tokenInfo: cache,
   };
 };
 
-const fetchToken = async (auths, theCache) => {
-  const cache = theCache;
-
-  const { body: tokenData, statusCode } = await needle('post', tokenEndpoint, {
-    ...body,
-    ...auths,
-  }, options);
+const fetchToken = async () => {
+  const { body: tokenData, statusCode } = await needle('post', tokenEndpoint, body, options);
 
   if (statusCode !== 200 || tokenData.error) {
     throw new UnsuccessfulRequestException(statusCode, tokenData);
   }
 
-  cache[tokenData.account_id] = tokenData;
-
-  fs.writeFileSync(`${module.path}/../cache.json`, JSON.stringify(cache));
+  fs.writeFileSync(`${module.path}/../cache.json`, JSON.stringify(tokenData));
 
   return {
     token: `${tokenData.token_type} ${tokenData.access_token}`,
@@ -93,20 +84,20 @@ const fetchToken = async (auths, theCache) => {
   };
 };
 
-const getAccessToken = async (auths) => {
+const getAccessToken = async () => {
   let cache = {};
 
   if (fs.existsSync(`${module.path}/../cache.json`)) {
     cache = JSON.parse(fs.readFileSync(`${module.path}/../cache.json`));
 
-    const cachedToken = await getCachedToken(auths, cache);
+    const cachedToken = await getCachedToken(cache);
 
     if (cachedToken) {
       return cachedToken;
     }
   }
 
-  return fetchToken(auths, cache);
+  return fetchToken();
 };
 
 module.exports = getAccessToken;

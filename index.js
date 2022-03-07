@@ -13,13 +13,11 @@ const defaultDownloadConfig = {
   checkpointCount: 1000,
   maxConcurrentDownloads: Infinity,
   matchId: '',
-  token: '',
 };
 
 const defaultMetadataConfig = {
   matchId: '',
   chunkDownloadLinks: true,
-  accessToken: '',
 };
 
 const downloadMetadataWrapper = async (inConfig) => {
@@ -28,14 +26,14 @@ const downloadMetadataWrapper = async (inConfig) => {
     ...inConfig,
   };
 
-  const metadata = await downloadMetadata(config.matchId, config.deviceAuth, config.accessToken);
+  const metadata = await downloadMetadata(config.matchId);
 
   if (!metadata) {
     return null;
   }
 
   if (config.chunkDownloadLinks) {
-    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`, config.deviceAuth, config.accessToken);
+    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`);
 
     const eacher = (theChunk) => {
       const chunk = theChunk;

@@ -11,19 +11,17 @@ This module is made to download tournament replays from the Fortnite servers.
 - Get download links for chunks
 
 ## Requirements
-- [Device Auth](https://github.com/MixV2/EpicResearch/blob/master/docs/auth/grant_types/device_auth.md) or any eg1 access token
+- A match id with a server replay. [Get one here](https://fortnite-replay.info/)
 
 ## Usage
 ```js
 const replayDownloader = require('fortnite-replay-downloader');
-const accessToken = 'eg1~token';
 
 replayDownloader.downloadReplay({
   matchId: '09525a55bf724b54b6cae5921f80dcba',
   eventCount: 1000,
   dataCount: 1000,
   checkpointCount: 1000,
-  accessToken,
   updateCallback: (data) => {
     console.log('');
     console.log('header', `${data.header.current}/${data.header.max}`);
@@ -50,9 +48,7 @@ Config
   maxConcurrentDownloads: number // the amount of chunks downloaded at the same time (default: infinity)
   dataCount: number, // the amount of data chunks to download
   eventCount: number, // the amount of event chunks to download
-  deviceAuth: device auth, // the login data from your account
-  accessToken: eg1 token, // the access token from you account
-  updateCallback: (updateData) => {}
+  updateCallback: (updateData) => {} // gets calleda after every downloaded chunk with the current progress
 }
 ```
 
@@ -83,8 +79,6 @@ Update callback structure
 {
   matchId: string, // the match id to download
   chunkDownloadLinks: boolean, // gives you download links and file sizes for every chunk
-  deviceAuth: device auth, // the login data from your account
-  accessToken: eg1 token, // the access token from you account
 }
 ```
 
@@ -99,7 +93,7 @@ Result structure
   FriendlyName: string, // the replay name. Its just the name of the map
   Timestamp: string,
   bIsLive: boolean, // is the match currently running?
-  bCompressed: boolean, // is the replay compressed. Current compression algorithm for replays is kraken
+  bCompressed: boolean, // is the replay compressed. Replays are compressed using oodle
   DesiredDelayInSeconds: number,
   DownloadLink: string, // header download link // expires after 15 minutes
   FileSize: number,

@@ -1,15 +1,13 @@
 const fs = require('fs');
 
 const replayDownloader = require('.');
-const deviceAuth = require('./deviceAuths.json');
 
 replayDownloader.downloadReplay({
-  matchId: '5f031170d1dd4d62acb1ace83e034a86',
+  matchId: '1b1e696039f04b9e8ff47a88d8260478',
   eventCount: 1000,
   dataCount: 1000,
-  checkpointCount: 0,
+  checkpointCount: 1000,
   maxConcurrentDownloads: 10,
-  deviceAuth,
   updateCallback: (data) => {
     console.log('');
     console.log('One');
@@ -25,9 +23,8 @@ replayDownloader.downloadReplay({
 });
 
 // replayDownloader.downloadMetadata({
-//   matchId: '09525a55bf724b54b6cae5921f80dcba',
+//   matchId: '13aaa57f9afe4da7b639368bb5b6a853',
 //   chunkDownloadLinks: true,
-//   deviceAuth,
 // }).then((metadata) => {
 //   fs.writeFileSync('metadata.json', JSON.stringify(metadata, null, 2));
 // }).catch((err) => {

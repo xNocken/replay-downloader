@@ -3,19 +3,13 @@ const needle = require('needle');
 const getAccessToken = require('./getAccessToken');
 const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
-const getDownloadLink = async (link, deviceAuth, inToken) => {
-  let token;
-
-  if (inToken) {
-    token = `bearer ${inToken}`;
-  } else {
-    ({ token } = await getAccessToken(deviceAuth));
-  }
+const getDownloadLink = async (link) => {
+  const { token } = await getAccessToken();
 
   const { body, statusCode } = await needle(link, {
     headers: {
       Authorization: token,
-      'User-Agent': 'Tournament replay downloader',
+      'User-Agent': 'fortnite-replay-downloader',
     },
   });
 

@@ -1,8 +1,8 @@
 const { metaDataUrl } = require('../constants');
-const downloadFile = require('./downloadFile');
+const downloadFileDirectly = require('./downloadFileDirectly');
 
 const downloadMetadata = async (matchId) => {
-  const data = await downloadFile(`${metaDataUrl}${matchId}.json`);
+  const data = await downloadFileDirectly(`${metaDataUrl}${matchId}.json`);
 
   if (!data) {
     return null;

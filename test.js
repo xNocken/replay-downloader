@@ -2,31 +2,53 @@ const fs = require('fs');
 
 const replayDownloader = require('.');
 
-replayDownloader.downloadReplay({
-  matchId: '1b1e696039f04b9e8ff47a88d8260478',
-  eventCount: 1000,
-  dataCount: 1000,
-  checkpointCount: 1000,
-  maxConcurrentDownloads: 10,
-  updateCallback: (data) => {
-    console.log('');
-    console.log('One');
-    console.log('header', `${data.header.current}/${data.header.max}`);
-    console.log('data', `${data.dataChunks.current}/${data.dataChunks.max}`);
-    console.log('events', `${data.eventChunks.current}/${data.eventChunks.max}`);
-    console.log('checkpoints', `${data.checkpointChunks.current}/${data.checkpointChunks.max}`);
-  },
-}).then((replay) => {
-  fs.writeFileSync('result.replay', replay);
-}).catch((err) => {
-  console.log(err);
-});
+const [type, id, ...fa] = process.argv.slice(2);
 
-// replayDownloader.downloadMetadata({
-//   matchId: '13aaa57f9afe4da7b639368bb5b6a853',
-//   chunkDownloadLinks: true,
-// }).then((metadata) => {
-//   fs.writeFileSync('metadata.json', JSON.stringify(metadata, null, 2));
-// }).catch((err) => {
-//   console.log(err);
-// })
+let checkpoint = false;
+let event = false;
+let packets = true;
+
+if (fa.includes('--checkpoint') || fa.includes('-c')) {
+  checkpoint = true;
+}
+
+if (fa.includes('--event') || fa.includes('-e')) {
+  event = true;
+}
+
+if (fa.includes('--no-data') || fa.includes('-nd')) {
+  packets = false;
+}
+
+if (type === 'replay') {
+  replayDownloader.downloadReplay({
+    matchId: id,
+    eventCount: event ? 1000 : 0,
+    dataCount: packets ? 1000 : 0,
+    checkpointCount: checkpoint ? 1000 : 0,
+    maxConcurrentDownloads: 10,
+    updateCallback: (data) => {
+      console.log('');
+      console.log('One');
+      console.log('header', `${data.header.current}/${data.header.max}`);
+      console.log('data', `${data.dataChunks.current}/${data.dataChunks.max}`);
+      console.log('events', `${data.eventChunks.current}/${data.eventChunks.max}`);
+      console.log('checkpoints', `${data.checkpointChunks.current}/${data.checkpointChunks.max}`);
+    },
+  }).then((replay) => {
+    fs.writeFileSync(`${id}.replay`, replay);
+  }).catch((err) => {
+    console.log(err);
+  });
+} else if (type === 'metadata') {
+  replayDownloader.downloadMetadata({
+    matchId: id,
+    chunkDownloadLinks: true,
+  }).then((metadata) => {
+    fs.writeFileSync(`${id}.json`, JSON.stringify(metadata, null, 2));
+  }).catch((err) => {
+    console.log(err);
+  });
+} else {
+  console.log('Invalid type', type);
+}

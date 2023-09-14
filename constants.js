@@ -1,5 +1,5 @@
 const constants = {
-  metaDataUrl: 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplaysmetadata/public/',
+  metaDataUrl: 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/data/fnreplaysmetadata/public/',
   baseDataUrl: 'https://datastorage-public-service-live.ol.epicgames.com/api/v1/access/fnreplays/public/',
   authClientId: '3446cd72694c4a4485d81b77adbb2141',
   authClientSecret: '9209d4a5e25a457fb9b07489d313b41a',

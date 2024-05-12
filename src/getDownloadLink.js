@@ -3,13 +3,14 @@ const needle = require('needle');
 const getAccessToken = require('./getAccessToken');
 const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 
-const getDownloadLink = async (link) => {
+const getDownloadLink = async (link, bd) => {
   const { token } = await getAccessToken();
 
-  const { body, statusCode } = await needle(link, {
+  const { body, statusCode } = await needle("post", link, bd,{
     headers: {
       Authorization: token,
       'User-Agent': 'fortnite-replay-downloader',
+      'Content-type' : "application/json"
     },
   });
 

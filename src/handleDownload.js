@@ -6,7 +6,11 @@ const handleDownload = async (chunks, maxConcurrentDownloads, updateCallback) =>
 
   chunks.splice(0, maxConcurrentDownloads || Infinity).forEach((chunk, index) => {
     const download = async () => {
-      const data = await downloadFileWithLink(chunk.DownloadLink, chunk.encoding);
+      const body = {
+        files: chunks.map(chunk => chunk.Id + ".bin")
+      };
+
+      const data = await downloadFileWithLink(chunk.DownloadLink, body);
 
       results[index] = {
         ...chunk,

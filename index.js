@@ -1,6 +1,8 @@
 const { baseDataUrl } = require('./constants');
 const buildMeta = require('./src/buildMeta');
 const buildReplay = require('./src/buildReplay');
+const downloadFileDirectly = require('./src/downloadFileDirectly');
+const downloadFileWithLink = require('./src/downloadFileDirectly');
 const downloadMetadata = require('./src/downloadMetadata');
 const getDownloadLink = require('./src/getDownloadLink');
 const handleDownload = require('./src/handleDownload');
@@ -33,11 +35,36 @@ const downloadMetadataWrapper = async (inConfig) => {
   }
 
   if (config.chunkDownloadLinks) {
-    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`);
+    
+    const chunkIds = ["header"];
+
+    metadata["Checkpoints"].forEach((checkpointChunk) => {
+      chunkIds.push(
+        checkpointChunk["Id"]?.toString() ?? new Error("Failed to get chunk id")
+      );
+    });
+
+    metadata["Events"].forEach((eventChunk) => {
+      chunkIds.push(
+        eventChunk["Id"]?.toString() ?? new Error("Failed to get chunk id")
+      );
+    });
+
+    metadata["DataChunks"].forEach((dataChunk) => {
+      chunkIds.push(
+        dataChunk["Id"]?.toString() ?? new Error("Failed to get chunk id")
+      );
+    });
+    const body = {
+      files: chunkIds.map(id => id + ".bin"),
+    };
+  
+    const httpContent = JSON.stringify(body);
+    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`, httpContent);
 
     const eacher = (theChunk) => {
       const chunk = theChunk;
-      const index = `public/${config.matchId}/${chunk.Id}.bin`;
+      const index = `${chunk.Id}.bin`;
 
       if (!files[index]) {
         console.error(index, 'not found in files list');

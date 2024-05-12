@@ -4,19 +4,21 @@ const getAccessToken = require('./getAccessToken');
 
 const downloadFileDirectly = async (link) => {
   const { token } = await getAccessToken();
-
-  const { body, statusCode } = await needle(link, {
+  const data = await needle(link, {
     headers: {
-      Authorization: token,
-      'User-Agent': 'fortnite-replay-downloader',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Tournament replay downloader',
+      'Authorization': token,
     },
   });
 
+  const { statusCode, body: responseBody } = data;
+
   if (statusCode !== 200) {
-    throw new UnsuccessfulRequestException(statusCode, body);
+    throw new UnsuccessfulRequestException(statusCode, responseBody);
   }
 
-  return body;
+  return responseBody;
 };
 
 module.exports = downloadFileDirectly;

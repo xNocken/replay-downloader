@@ -1,4 +1,5 @@
 const needle = require('needle');
+
 const UnsuccessfulRequestException = require('./UnsuccessfulRequestException');
 const getAccessToken = require('./getAccessToken');
 
@@ -6,19 +7,18 @@ const downloadFileWithLink = async (link) => {
   const { token } = await getAccessToken();
   const data = await needle(link, {
     headers: {
-      'Content-Type': 'application/json',
       'User-Agent': 'Tournament replay downloader',
-      'Authorization': token,
+      Authorization: token,
     },
   });
 
-  const { statusCode, body: responseBody } = data;
+  const { body, statusCode } = data;
 
   if (statusCode !== 200) {
-    throw new UnsuccessfulRequestException(statusCode, responseBody);
+    throw new UnsuccessfulRequestException(statusCode, body);
   }
 
-  return responseBody;
+  return body;
 };
 
 module.exports = downloadFileWithLink;

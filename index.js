@@ -20,6 +20,11 @@ const defaultMetadataConfig = {
   chunkDownloadLinks: true,
 };
 
+/**
+ * @param {{ Id: string }[] | undefined} arr
+ */
+const getChunkIds = (arr) => arr?.map((x) => `${x.Id}.bin`) || [];
+
 const downloadMetadataWrapper = async (inConfig) => {
   const config = {
     ...defaultMetadataConfig,
@@ -33,11 +38,16 @@ const downloadMetadataWrapper = async (inConfig) => {
   }
 
   if (config.chunkDownloadLinks) {
-    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`);
+    const files = await getDownloadLink(`${baseDataUrl}${config.matchId}/`, [
+      'header.bin',
+      ...getChunkIds(metadata.Events),
+      ...getChunkIds(metadata.Checkpoints),
+      ...getChunkIds(metadata.DataChunks),
+    ]);
 
     const eacher = (theChunk) => {
       const chunk = theChunk;
-      const index = `public/${config.matchId}/${chunk.Id}.bin`;
+      const index = `${chunk.Id}.bin`;
 
       if (!files[index]) {
         console.error(index, 'not found in files list');
